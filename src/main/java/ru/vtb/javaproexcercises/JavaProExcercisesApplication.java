@@ -1,0 +1,13 @@
+package ru.vtb.javaproexcercises;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class JavaProExcercisesApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(JavaProExcercisesApplication.class, args);
+    }
+
+}
