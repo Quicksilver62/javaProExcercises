@@ -15,15 +15,15 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
       leak-detection-threshold: 2000
-  sql:
-    init:
-      mode: always
+
   jpa:
-    hibernate:
-      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: users
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yml
+    default-schema: public
