@@ -10,7 +10,6 @@ import ru.vtb.javaproexcercises.ex05.dto.ProductDto;
 public interface ProductMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", ignore = true)
     Product toEntity(ProductDto productDto);
 
     ProductDto toDto(Product product);

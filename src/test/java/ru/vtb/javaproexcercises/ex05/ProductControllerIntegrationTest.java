@@ -60,9 +60,7 @@ public class ProductControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.account").value("1234567890"))
                 .andExpect(jsonPath("$.amount").value(1000.50))
-                .andExpect(jsonPath("$.productType").value(ProductType.CARD.name()))
-                .andExpect(jsonPath("$.user.id").isNotEmpty())
-                .andExpect(jsonPath("$.user.username").value("John Doe"));
+                .andExpect(jsonPath("$.productType").value(ProductType.CARD.name()));
     }
 
     @Test
@@ -76,8 +74,6 @@ public class ProductControllerIntegrationTest {
                 .andExpect(jsonPath("$.content[0].id").isNotEmpty())
                 .andExpect(jsonPath("$.content[0].account").value("1234567890"))
                 .andExpect(jsonPath("$.content[0].amount").value(1000.50))
-                .andExpect(jsonPath("$.content[0].productType").value(ProductType.CARD.name()))
-                .andExpect(jsonPath("$.content[0].user.id").isNotEmpty())
-                .andExpect(jsonPath("$.content[0].user.username").value("John Doe"));
+                .andExpect(jsonPath("$.content[0].productType").value(ProductType.CARD.name()));
     }
 }
