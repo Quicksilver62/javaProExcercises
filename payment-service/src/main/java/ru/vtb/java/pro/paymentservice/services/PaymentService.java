@@ -5,11 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.vtb.java.pro.paymentservice.clients.LimitClient;
 import ru.vtb.java.pro.paymentservice.clients.ProductClient;
 import ru.vtb.java.pro.paymentservice.dto.PaymentResponseDto;
 import ru.vtb.java.pro.paymentservice.dto.PaymentRequestDto;
 import ru.vtb.java.pro.paymentservice.dto.ProductDto;
+import ru.vtb.java.pro.paymentservice.exceptions.InsufficientFundsException;
 import ru.vtb.java.pro.paymentservice.exceptions.PaymentProcessingException;
 import ru.vtb.java.pro.paymentservice.exceptions.ProductNotFoundException;
 
@@ -20,7 +20,6 @@ import static ru.vtb.java.pro.paymentservice.enums.PaymentStatus.COMPLETED;
 public class PaymentService {
 
     private final ProductClient productClient;
-    private final LimitClient limitClient;
 
     @Transactional
     public PaymentResponseDto executePayment(PaymentRequestDto request) throws InstantiationException {
@@ -34,17 +33,13 @@ public class PaymentService {
                 .orElseThrow(() -> new ProductNotFoundException(
                         String.format("Product with id %s not found", request.productId())));
 
-        Double userLimit = limitClient.getLimit();
-
-        if (userLimit < product.amount()) {
-            throw new InstantiationException("Insufficient funds on product id: " + request.productId());
+        if (request.limit() < product.amount()) {
+            throw new InsufficientFundsException("Insufficient funds on product id: " + request.productId());
         }
 
-        userLimit = userLimit - product.amount();
+        var userLimit = request.limit() - product.amount();
 
-        limitClient.upsertLimit(userLimit);
-
-        return new PaymentResponseDto(request.userId(), request.productId(), product.amount(), COMPLETED);
+        return new PaymentResponseDto(request.userId(), request.productId(), product.amount(), COMPLETED, userLimit);
     }
 
     public Page<ProductDto> getProducts(Long id, Pageable pageable) {

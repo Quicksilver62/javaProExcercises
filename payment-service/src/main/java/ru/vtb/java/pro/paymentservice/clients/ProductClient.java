@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.vtb.java.pro.paymentservice.dto.ProductDto;
-import ru.vtb.java.pro.paymentservice.exceptions.ProductServiceUnavailableException;
 import ru.vtb.java.pro.paymentservice.pojo.PageResponse;
 
 import java.util.List;
@@ -26,34 +25,26 @@ public class ProductClient {
     public Page<ProductDto> getProductsByUserId(Long userId, Pageable pageable) {
         ParameterizedTypeReference<PageResponse<ProductDto>> responseType = new ParameterizedTypeReference<>() {};
 
-        try {
-            String url = String.format("/api/v1/products/by-user/%d?page=%d&size=%d",
-                    userId,
-                    pageable.getPageNumber(),
-                    pageable.getPageSize());
+        String url = String.format("/api/v1/products/by-user/%d?page=%d&size=%d",
+                userId,
+                pageable.getPageNumber(),
+                pageable.getPageSize());
 
-            log.info("Fetching products for user: {} from {}", userId, url);
+        log.info("Fetching products for user: {} from {}", userId, url);
 
-            ResponseEntity<PageResponse<ProductDto>> response = productClientTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    null,
-                    responseType
-            );
+        ResponseEntity<PageResponse<ProductDto>> response = productClientTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                responseType
+        );
 
-            PageResponse<ProductDto> pageResponse = response.getBody();
+        PageResponse<ProductDto> pageResponse = response.getBody();
 
-            if (pageResponse == null) {
-                return new PageImpl<>(List.of());
-            }
-
-            return pageResponse.toPage(pageable);
-
-        } catch (Exception e) {
-            log.error("Error fetching products for user: {}", userId, e);
-            throw new ProductServiceUnavailableException(
-                    "Product service is unavailable: " + e.getMessage()
-            );
+        if (pageResponse == null) {
+            return new PageImpl<>(List.of());
         }
+
+        return pageResponse.toPage(pageable);
     }
 }

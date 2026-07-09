@@ -17,22 +17,13 @@ public class IntegrationConfiguration {
     private final ClientProperties clientProperties;
 
     @Bean
-    public RestTemplate productClientTemplate() {
+    public RestTemplate productClientTemplate(ProductClientExceptionHandler productClientExceptionHandler) {
         RestTemplateProperties restTemplateProperties = clientProperties.getProductClient();
         return new RestTemplateBuilder()
                 .baseUri(restTemplateProperties.url())
                 .connectTimeout(restTemplateProperties.connectTimeout())
                 .readTimeout(restTemplateProperties.readTimeout())
-                .build();
-    }
-
-    @Bean
-    public RestTemplate limitClientTemplate() {
-        RestTemplateProperties restTemplateProperties = clientProperties.getLimitClient();
-        return new RestTemplateBuilder()
-                .baseUri(restTemplateProperties.url())
-                .connectTimeout(restTemplateProperties.connectTimeout())
-                .readTimeout(restTemplateProperties.readTimeout())
+                .errorHandler(productClientExceptionHandler)
                 .build();
     }
 }

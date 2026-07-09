@@ -10,6 +10,4 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ClientProperties {
 
     private final RestTemplateProperties productClient;
-
-    private final RestTemplateProperties limitClient;
 }
