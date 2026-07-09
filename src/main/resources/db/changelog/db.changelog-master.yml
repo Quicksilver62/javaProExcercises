@@ -2,3 +2,6 @@ databaseChangeLog:
   - include:
       file: init/createTableUsers.sql
       relativeToChangelogFile: true
+  - include:
+      file: features/createTableProducts.sql
+      relativeToChangelogFile: true

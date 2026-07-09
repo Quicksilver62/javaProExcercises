@@ -1,12 +1,14 @@
 package ru.vtb.javaproexcercises.ex05;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import ru.vtb.javaproexcercises.ex05.dto.UserDto;
+import ru.vtb.javaproexcercises.ex05.repository.UserRepository;
 import ru.vtb.javaproexcercises.ex05.services.UserService;
 
 import java.util.List;
@@ -15,43 +17,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Sql(scripts = "/testData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class UserServiceTest {
 
     @Autowired
     private UserService userService;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @BeforeEach
-
-    void setUp() {
-        jdbcTemplate.execute("truncate table users restart identity");
-        jdbcTemplate.execute("""
-            insert into users (username) values
-                                             ('John Doe'),
-                                             ('Richard Roe'),
-                                             ('Jane Doe');
-        """);
-    }
+    private UserRepository userRepository;
 
     @Test
     public void createUserTest() {
         String username = "Rachel Roe";
-        UserDto userDto = new UserDto(null, username);
-
+        UserDto userDto = new UserDto(null, username, List.of());
         userService.createUser(userDto);
-
-        assertThat(userService.findAllUsers())
-                .anyMatch(u -> u.username().equals(username));
+        assertThat(userRepository.findAll())
+                .anyMatch(u -> u.getUsername().equals(username));
     }
 
     @Test
     public void deleteUserTest() {
-        UserDto user = userService.findAllUsers().getFirst();
+        UserDto user = userService.findAllUsers(Pageable.unpaged())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("User not found"));
         userService.deleteUser(user);
-        assertThat(userService.findAllUsers())
-                .noneMatch(u -> u.username().equals(user.username()));
+        assertThat(userRepository.findAll())
+                .noneMatch(u -> u.getUsername().equals(user.username()));
     }
 
     @Test
@@ -63,7 +55,7 @@ public class UserServiceTest {
 
     @Test
     public void findAllUsersTest() {
-        List<UserDto> users = userService.findAllUsers();
+        Page<UserDto> users = userService.findAllUsers(Pageable.unpaged());
         assertThat(users).hasSize(3);
     }
 }
